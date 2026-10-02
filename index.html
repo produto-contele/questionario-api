@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible{outline:3px solid #93c5fd;outline-offse
 .cert-meta{display:flex;gap:44px;margin-top:6px;flex-wrap:wrap;justify-content:center}
 .cert-meta div span{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#94a3b8;display:block;margin-bottom:4px}
 .cert-meta div b{font-size:15px;font-weight:800}
+.cert-code{position:absolute;right:22px;bottom:18px;font-size:8px;font-weight:600;letter-spacing:.5px;color:#cbd5e1;line-height:1}
 .cert-empty{color:#94a3b8;font-size:14px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:420px;line-height:1.5}
 .cert-empty .ic{font-size:40px;color:#cbd5e1}
 
@@ -493,6 +494,11 @@ const QUESTIONS = [
 const PTS = 10;            // pontos por pergunta
 const APROVACAO = 80;      // % mínimo para emitir o certificado
 const LETRAS = 'ABCDEFGH';
+/* número romano da tentativa aprovada (validação interna no certificado) */
+function romano(n){
+  const t=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let r=''; for(const [v,s] of t){ while(n>=v){ r+=s; n-=v; } } return r;
+}
 
 /* =========================================================
    2. ESTADO
@@ -702,7 +708,8 @@ $('cGen').onclick = ()=>{
     <div class="cert-meta">
       <div><span>Aproveitamento</span><b>${perc}% · ${got}/${max} pts</b></div>
       <div><span>Data de conclusão</span><b>${hoje}</b></div>
-    </div>`;
+    </div>
+    <span class="cert-code" aria-hidden="true">${romano(attempt)}</span>`;
   $('cPrint').disabled = false;
 
   /* Dados do certificado disponíveis para a automação.
@@ -711,7 +718,7 @@ $('cGen').onclick = ()=>{
   window.CERTIFICADO = {
     treinamento:'API, Integrações e Automações - Contele Teams',
     nome, email: mail, empresa: emp,
-    pontos: got, total: max, percentual: perc, tentativas: attempt,
+    pontos: got, total: max, percentual: perc, tentativas: attempt, codigo: romano(attempt),
     aprovado: true, data: hoje, emitidoEm: new Date().toISOString()
   };
   Object.entries(window.CERTIFICADO).forEach(([k,v])=>box.dataset[k] = v);
